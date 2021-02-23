@@ -28,7 +28,8 @@ void callback(const geometry_msgs::Twist::ConstPtr& msg){
 	x = msg->linear.x;
 	z = msg->angular.z;
 	ROS_INFO("x : %f, z : %f", x, z);
-	
+	double time0 = ros::Time::now().toSec();
+	double time1;
 	if (x>0){
 		is_forward = true;
 		}
@@ -47,16 +48,20 @@ void callback(const geometry_msgs::Twist::ConstPtr& msg){
 	linear_speed = x;
 	angular_speed = z;
 	
+	do{
+	time1 = ros::Time::now().toSec();
 	if (linear_speed != 0 && angular_speed == 0){
-			ros::Time time1 = ros::Time::now().to_sec()
-			move(linear_speed, is_forward);
+		move(linear_speed, is_forward);
 		}
-		else if (linear_speed == 0 && angular_speed != 0){
-			rotate(angular_speed, is_cw);	
+	else if (linear_speed == 0 && angular_speed != 0){
+		rotate(angular_speed, is_cw);	
 		}
-		else {
-			stop();
+	else {
+		stop();
 		}
+	}while(time1-time0 < 1);
+	stop();
+	ROS_INFO("ROBOT STOPS");
 }
 
 int main(int argc, char **argv){
