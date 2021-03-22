@@ -1,20 +1,18 @@
 #ifndef __MOTOR
 #define __MOTOR
 #include "wiringPi.h"
-#include "softPwm.h"
-
 class Motor
 {
     public:
-        const int front;
-        const int back;
-        const int en;
+        int front;
+        int back;
+        int en;
         int duty_cycle;
 
-        Motor(const int front, const int back, const int en);
-        int calcDutyCycle(double x_val);
+        Motor(int front, int back, int en);
         void init(const int front, const int back);
-        void move(bool is_F, int dutyCycle);
+        void backward();
+        void forward();
         void stop();
 };
 
@@ -35,23 +33,23 @@ void init()
     softPwmCreate(Motor::en, 1, 100);
 }
 
-void move(bool is_F, int dutyCycle)
+void stop()
 {
-    if (is_F){
-        digitalWrite(Motor::front, HIGH);
-        digitalWrite(Motor::back, LOW);
-    }
-    else {
-        digitalWrite(Motor::front, LOW);
-        digitalWrite(Motor::back, HIGH);
-    }
-    softPwmWrite (Motor::en, dutyCycle);
-}
-
-void stop(){
     digitalWrite(Motor::front, LOW);
     digitalWrite(Motor::back, LOW);
     softPwmWrite(Motor::en, 0);
+}
+
+void forward()
+{
+    digitalWrite(Motor::front, HIGH);
+    digitalWrite(Motor::back, LOW);
+}
+
+void backward()
+{
+    digitalWrite(Motor::front, LOW);
+    digitalWrite(Motor::back, HIGH);
 }
 
 #endif

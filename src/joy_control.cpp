@@ -17,47 +17,77 @@
 
 Motor m_left = Motor(20, 21, 26); // Deklarasi pin motor (pin maju, pin mundur, pin pwm)
 Motor m_right = Motor(6, 13, 12);
+
 double x_axis;
 double y_axis;
 int en1, en2;
-bool m_l_dir, m_r_dir;
+double ex1, ex2, ey1, ey2;
 
 void joy_callback(const sensor_msgs::Joy::ConstPtr &msg){
-    x_axis = msg.axes[0];
-    y_axis = msg.axes[1];
+    x_axis = msg->axes[0];
+    y_axis = msg->axes[1];
     
-    en1 = std::abs(-1-(-x_axis))*100;
-    en2 = (1-x_axis)*100;
-    
-    if (y_axis > 0){
-        m_l_dir = true;
-        m_r_dir = true;    
+    if (y_axis>0){
+        m_left.forward();
+        m_right.forward();
+        
+        }
+    else if(y_axis<0){
+        m_left.backward();
+        m_right.backward();
     }
-
-    else if (y_axis<0){
-        m_l_dir = false;
-        m_r_dir = false;
+    else{
+        m_left.stop();
+        m_right.stop();
     };
+    double y_map = std::abs(y_axis)*100;
+    double x_map = std::abs(x_axis)*100;
+    
+    if (x_axis>0){
+        en1=y_map + x_map;
+        en2=y_map - x_map;
+    }
+    else if(x_axis<0){
+        en1=y_map - x_map;
+        en2=y_map + x_map;
+    }
+    ROS_INFO("Duty Cycle");
+    ROS_INFO("L: %d \tR: %d\n", en1, en2);
+    /*
+    // Old school way not done
+    
+    // ey1 = (y_axis/2)*100;
+    // ey2 = (y_axis/2)*100;
+    // ex1 = (1-x_axis);
+    // ex2 = (std::abs(-1)-(-x_axis));
 
-    // Send result to move the motor
-    m_left.move(m_l_dir, en1);
-    m_right.move(m_r_dir, en2);
+    // en1 = (ex1/2)*100;
+    // en2 = (ex2/2)*100;
+    
+    // ROS_INFO("Axes values");
+    // ROS_INFO("X: %f \tY: %f", x_axis, y_axis);
+    // ROS_INFO("Ratio of both motors");
+    // ROS_INFO("Left: %f \tRight: %f", ex1, ex2);
+    // ROS_INFO("Additional y values");
+    // ROS_INFO("Left: %f \tRight: %f", ey1, ey2);
+    // ROS_INFO("Duty Cycle");
+    // ROS_INFO("L: %d \tR: %d\n", en1, en2);*/
 }
 
-int main(int argc, char const *argv[])
+int main(int argc, char **argv)
 {
-    setup();
+    // setup();
     ros::init(argc, argv, "joy_control_node");
     ros::NodeHandle nh;
-    ros::Subscriber sub = nh.subsrcibe("/joy", 1000, joy_callback);
+    ros::Subscriber sub = nh.subscribe("/joy", 1000, joy_callback);
     ROS_INFO("Node is Running");
     while(ros::ok()){
-        ros.spin();
+        ros::spin();
     }
     return 0;
 }
 
-void setup(){
-    m_left.init();
-    m_right.init();
-}
+// void setup(){
+//     m_left.init();
+//     m_right.init();
+// }

@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp
   rospy
-  std_msgs
+  sensor_msgs
 )
 
 
@@ -105,7 +105,7 @@ add_message_files(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES yonbot_ws
-   CATKIN_DEPENDS geometry_msgs roscpp rospy std_msgs
+   CATKIN_DEPENDS geometry_msgs roscpp rospy sensor_msgs
 #  DEPENDS system_lib
 )
 
@@ -123,6 +123,10 @@ target_link_libraries(yonbot_node
   ${catkin_LIBRARIES} -lwiringPi
 )
 
+add_executable(joy_control_node src/joy_control.cpp)
+target_link_libraries(joy_control_node
+  ${catkin_LIBRARIES} -lwiringPi
+)
 #############
 ## Install ##
 #############
